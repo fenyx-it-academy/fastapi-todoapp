@@ -1,6 +1,6 @@
 # make necessary imports
 from typing import Optional
-from fastapi import FastAPI
+from fastapi import FastAPI , HTTPException
 from pydantic import BaseModel
 from uuid import UUID, uuid4
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,33 +25,36 @@ class Todo (BaseModel):
     name: str
     status: Optional [str] = "pending"
 
+# create a todo list and add 3 Todo items to serve as examples
 
-todo_lst=[Todo(id=uuid4(),name='Do homework'),
+todo_list=[Todo(id=uuid4(),name='Do homework'),
 Todo(id=uuid4(),name='Shopping'),
 Todo(id=uuid4(),name='Reading',status='Done')]
+
+# create a get req. listener for the landing page "/"
+# return hello world or sth random as a response object
 
 @app.get("/")
 def read_root():
     return {"Good luck": "team 2 and 3"}
 
-# create a todo list and add 3 Todo items to serve as examples
-
-
-
-# create a get req. listener for the landing page "/"
-# return hello world or sth random as a response object
-
-
-
 # create a get req. listener for the endpoint "/todos"
 # return all todos as a response object
 
+@app.get("/todos")
+def read_todos():
+    return todo_list
 
 
 # create a get req. listener for the a single todo item, customize the path using item id
 # return the particular item as a response object
-
-
+@app.get("/todos/{item_id}")
+def read_todo(item_id:UUID):
+    for i in todo_list:
+        if i.id == item_id:
+            return i
+    raise HTTPException(status_code=404, detail="Item name is not found.")
+   
 
 # create a post req. listener for creating a new todo item
 # return the newly created item as a response object
