@@ -1,20 +1,38 @@
 # make necessary imports
+from typing import Optional
+from fastapi import FastAPI
+from pydantic import BaseModel
+from uuid import UUID, uuid4
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+
 
 
 # create the FastAPI class
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
-# add CORS middleware
+class Todo (BaseModel):
+    id: UUID
+    name: str
+    status: Optional [str] = "pending"
 
 
+todo_lst=[Todo(id=uuid4(),name='Do homework'),
+Todo(id=uuid4(),name='Shopping'),
+Todo(id=uuid4(),name='Reading',status='Done')]
 
-
-# creata a Todo class by inheriting BaseModel from Pydantic lib.
-# attributes to be included:
-    # - id: Optional UUID
-    # - name: str
-    # - status: Optional str default_val= "pending"
-
+@app.get("/")
+def read_root():
+    return {"Good luck": "team 2 and 3"}
 
 # create a todo list and add 3 Todo items to serve as examples
 
@@ -76,3 +94,6 @@
 # install the following VsCode extensions:
 # autoDocstring - Python Docstring Generator
 # Live Server
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
