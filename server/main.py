@@ -43,6 +43,11 @@ def read_root():
 
 @app.get("/todos")
 def read_todos():
+    """This function shows all todo list
+
+    Returns:
+        list of dectionary: all items in todo list
+    """
     return todo_list
 
 
@@ -50,30 +55,65 @@ def read_todos():
 # return the particular item as a response object
 @app.get("/todos/{item_id}")
 def read_todo(item_id:UUID):
+    """This function shows one todo
+
+    Args:
+        item_id (UUID): id of todo item
+
+    Raises:
+        HTTPException: This will be raised when the id does not exist in the todo list
+
+    Returns:
+        dictionary: one element of todo list
+    """
     for i in todo_list:
         if i.id == item_id:
             return i
-    raise HTTPException(status_code=404, detail="Item name is not found.")
+    raise HTTPException(status_code=404, detail="Item does not exist.")
    
 
 # create a post req. listener for creating a new todo item
 # return the newly created item as a response object
 
+@app.post("/add-todo")
+def add_item(todo:Todo):
+    todo_list.append(todo)
 
 
 # create a put req. listener for updating an existing todo item
 # return the updated item as a response object
+@app.put("/edit-todo/{id}")
+def update_todos(todo_update:Todo,id:UUID):
+    for i in todo_list:
+        if i.id == id:
+            if todo_update.name is not None:
+                i.name = todo_update.name
+            if todo_update.status is not None:
+                i.status = todo_update.status
+            return todo_list
+    raise HTTPException(status_code=404, detail= f"This todo doesn't exist")
 
 
 
 # create a delete req. listener for deleting a todo item
 # return the final list of todos as a response object
+@app.delete("/delete{id}")
+def delete_todo(id:UUID):
+    for i in todo_list:
+        if i.id == id:
+            todo_list.remove(i)
+            print("item found")
+            return todo_list
+    raise HTTPException(status_code=404, detail= f"This todo doesn't exist")
 
 
 
 # create a delete req. listener for deleting all todo items
 # return the  final list of todos, which would be an empty list, as a response object
-
+@app.delete("/delete")
+def delete_todo():
+    todo_list.clear()
+    return todo_list
 
 
 
