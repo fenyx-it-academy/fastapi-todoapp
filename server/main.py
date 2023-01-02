@@ -34,9 +34,9 @@ Todo(id=uuid4(),name='Reading',status='Done')]
 # create a get req. listener for the landing page "/"
 # return hello world or sth random as a response object
 
-@app.get("/")
+@app.get("/") 
 def read_root():
-    return {"Good luck": "team 2 and 3"}
+    return {"Welkom en goed werk"}
 
 # create a get req. listener for the endpoint "/todos"
 # return all todos as a response object
@@ -52,31 +52,58 @@ def read_todos():
 def read_todo(item_id:UUID):
     for i in todo_list:
         if i.id == item_id:
-            return i
-    raise HTTPException(status_code=404, detail="Item name is not found.")
-   
+            try:
+                return i
+            except:
+                raise HTTPException(status_code=404, detail="Item name is not found.")
 
 # create a post req. listener for creating a new todo item
 # return the newly created item as a response object
+@app.post("/todos/")
+def create_item(item: Todo):
+    try:
+        todo_list.append(item)
+        return todo_list
+    except:
+        raise HTTPException(status_code=404, detail="Item name is not found.")
 
 
 
 # create a put req. listener for updating an existing todo item
 # return the updated item as a response object
+@app.put("/todos/{item_id}")
+def update_item(item_id: UUID, item: Todo):
+    try:
+        todo_list[item_id] = item
+        return todo_list
 
+    except:
+        raise HTTPException(status_code=404, detail="Item name is not found.")
 
 
 # create a delete req. listener for deleting a todo item
 # return the final list of todos as a response object
 
+@app.delete("/todos/{item_id}")
+def delete_item(item_id: UUID):
+    print(todo_list)
+    print("delete id: ", item_id)
+    for i in todo_list:
+        if i["id"] == item_id:
+            print("item found")
+            todo_list.remove(i)
+            print(todo_list)
+            break
+    return todo_list
 
 
 # create a delete req. listener for deleting all todo items
 # return the  final list of todos, which would be an empty list, as a response object
 
-
-
-
+@app.delete("/todos")
+def delete_all_items():
+    todo_list.clear()
+    return todo_list
 
 
 # THINGS TO KEEP IN MIND:
