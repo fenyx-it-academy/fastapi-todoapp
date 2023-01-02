@@ -8,8 +8,8 @@ import uvicorn
 
 
 
-# create the FastAPI class
 app = FastAPI()
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -20,83 +20,128 @@ app.add_middleware(
 )
 
 
-class Todo (BaseModel):
-    id: UUID
+class TodoItem(BaseModel):
+    id: Optional[UUID]
     name: str
-    status: Optional [str] = "pending"
+    status: Optional[str] = "pending"
 
-# create a todo list and add 3 Todo items to serve as examples
 
-todo_list=[Todo(id=uuid4(),name='Do homework'),
-Todo(id=uuid4(),name='Shopping'),
-Todo(id=uuid4(),name='Reading',status='Done')]
 
-# create a get req. listener for the landing page "/"
-# return hello world or sth random as a response object
+
+todo_list=[TodoItem(id=uuid4(),name='Do homework'),
+TodoItem(id=uuid4(),name='Shopping'),
+TodoItem(id=uuid4(),name='Reading', status='Done')]
+
+
+
 
 @app.get("/")
 def read_root():
-    return {"Good luck": "team 2 and 3"}
+    return {'Welcome TodoApp'}
+    """_summary_
 
-# create a get req. listener for the endpoint "/todos"
-# return all todos as a response object
+    Root:
+       "/"
+
+    Returns:
+        Welcome TodoApp
+    """
+    
 
 @app.get("/todos")
 def read_todos():
     return todo_list
+    """_summary_
 
+    Root:
+        "/todos"
 
-# create a get req. listener for the a single todo item, customize the path using item id
-# return the particular item as a response object
+    Returns:
+       all todos as a response object
+    """
+    
+
 @app.get("/todos/{item_id}")
 def read_todo(item_id:UUID):
-    for i in todo_list:
-        if i.id == item_id:
-            return i
+    for todo in todo_list:
+        if todo.id == item_id:
+            return todo
     raise HTTPException(status_code=404, detail="Item name is not found.")
+    """_summary_
+
+    Root:
+        "/todos/{item_id}"
+    Returns:
+        the particular item as a response object
+    """
    
 
-# create a post req. listener for creating a new todo item
-# return the newly created item as a response object
+
+@app.post("/todos")
+def create_todo(item: TodoItem):
+    todo_list.append(item) 
+    return todo_list
+    """_summary_
+
+    Post reguest: 
+       create a new todo item
+
+    Returns:
+        the newly created item as a response object
+    """
+        
 
 
+@app.put("/todos")
+def update_todo( item: TodoItem):
+    for todo in todo_list:
+        if todo.id == item.id:
+            todo.status = item.status
+            return todo
+    raise HTTPException(status_code=404, detail="Item does not exists.")
+    """_summary_
 
-# create a put req. listener for updating an existing todo item
-# return the updated item as a response object
+    Put request:
+        update an existing todo item
 
+    Returns:
+        the updated item as a response object
+    """
 
+                                
 
-# create a delete req. listener for deleting a todo item
-# return the final list of todos as a response object
-
-
-
-# create a delete req. listener for deleting all todo items
-# return the  final list of todos, which would be an empty list, as a response object
-
-
-
-
-
-
-# THINGS TO KEEP IN MIND:
-
-# work in specific branches (git checkout -b feature/<feature_name_of_your_branch>)
-
-# make sure to specify each function by creating docstrings, here's an example:
-    # """Search for a single user
-    # Args:
-    #     user_id (UUID): id of the user
-    # Returns:
-    #    JSON: JSON representation of user details
-    # """
+@app.delete("/todos/{item_id}")
+def delete_todo(item_id: UUID):
+    for i, todo in enumerate(todo_list):
+        if todo.id == item_id:
+            todo_list.pop(i)
+            return {"message": "Item deleted"}
+    raise HTTPException(status_code=404, detail="Item does not exists.")
+    """_summary_
+    Delete request:
+        delete todo item
 
 
-# use proper error handling - check FastAPI docs.
+    Returns:
+        the final list of todos as a response object
+    """
+    
 
-# install the following VsCode extensions:
-# autoDocstring - Python Docstring Generator
-# Live Server
+
+@app.delete("/todos")
+def delete_all_todos():
+    todo_list.clear()
+    return todo_list
+    """_summary_
+      delete request:  
+        delete all list
+
+
+    Returns:
+        an empty list
+    """
+
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
