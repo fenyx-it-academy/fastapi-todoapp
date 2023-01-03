@@ -34,7 +34,7 @@ function renderAllTodos() {
 
   });
 }
-
+////////////////////////////////////////////////////////////////////////////
 
 function renderTodo(todo) {
   const todoList = document.querySelector(".todoList");
@@ -73,7 +73,7 @@ function renderTodo(todo) {
 
 function updateTodoStatus(id, status) {
   console.log(id, status)
-  fetch(`http://127.0.0.1:8000/todos`, {
+  fetch(`http://127.0.0.1:8000/todos/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json"
