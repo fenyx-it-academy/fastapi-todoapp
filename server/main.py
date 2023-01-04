@@ -25,6 +25,12 @@ class Todo (BaseModel):
     name: str
     status: Optional [str] = "pending"
 
+class UpdateTodo(BaseModel):
+    id: Optional[UUID] 
+    name: Optional[str] 
+    status: Optional[str] 
+
+
 # create a todo list and add 3 Todo items to serve as examples
 
 todo_list=[Todo(id=uuid4(),name='Do homework'),
@@ -58,22 +64,51 @@ def read_todo(item_id:UUID):
 
 # create a post req. listener for creating a new todo item
 # return the newly created item as a response object
+@app.post("/add-item")
+def add_item(todo: Todo):
+    if todo in todo_list:
+        return {"Error":"item alredy exists."}
+    
+    todo_list.append(todo)
+    return todo
+
 
 
 
 # create a put req. listener for updating an existing todo item
 # return the updated item as a response object
+@app.put("/update-item/{item_id}")
+def update_item(item_id:UUID, item:UpdateTodo):
+    if item_id not in todo_list:
+        return {"error":" item id do not exists."}
+    if item.name != None:
+        todo_list.name = item.name
+    if item.status != None:
+        todo_list.status = item.status
+    return todo_list[item_id]
+
 
 
 
 # create a delete req. listener for deleting a todo item
 # return the final list of todos as a response object
+@app.delete("/todos/{item_id}")
+async def delete_item(item_id:UUID):
+    for item in todo_list:
+        if item.id == item_id:
+            todo_list.remove(item)
+            return
+
+
 
 
 
 # create a delete req. listener for deleting all todo items
 # return the  final list of todos, which would be an empty list, as a response object
-
+@app.delete("/todos/clearlist")
+def delete_all(todo_list):
+    todo_list.clear()
+    return 
 
 
 
