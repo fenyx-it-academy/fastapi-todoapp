@@ -24,10 +24,12 @@ class Todo (BaseModel):
     id: UUID
     name: str
     status: Optional [str] = "pending"
-
+class UpTodo (BaseModel):
+    name: Optional [str] = None
+    status: Optional [str] = None
 # create a todo list and add 3 Todo items to serve as examples
 
-todo_list=[Todo(id=uuid4(),name='Do homework'),
+todo_lst=[Todo(id=uuid4(),name='Do homework'),
 Todo(id=uuid4(),name='Shopping'),
 Todo(id=uuid4(),name='Reading',status='Done')]
 
@@ -43,14 +45,14 @@ def read_root():
 
 @app.get("/todos")
 def read_todos():
-    return todo_list
+    return todo_lst
 
 
 # create a get req. listener for the a single todo item, customize the path using item id
 # return the particular item as a response object
 @app.get("/todos/{item_id}")
 def read_todo(item_id:UUID):
-    for i in todo_list:
+    for i in todo_lst:
         if i.id == item_id:
             return i
     raise HTTPException(status_code=404, detail="Item name is not found.")
@@ -59,23 +61,47 @@ def read_todo(item_id:UUID):
 # create a post req. listener for creating a new todo item
 # return the newly created item as a response object
 
-
+@app.post("/todos")
+def create_todo(todo: Todo):
+    todo_lst.append(todo)
+    return todo_lst
 
 # create a put req. listener for updating an existing todo item
 # return the updated item as a response object
+@app.put("/update-todo/{item_id}")
+def update_todo(item_id:UUID, update: UpTodo):
+    for i in todo_lst:
+        if i.id == id:
+            if update.name != None:
+                i.name = update.name
+            if update.status != None:
+                i.status = update.status
+            return todo_lst
 
+    raise HTTPException(status_code = 404, detail = f"This item does not exist!")
 
 
 # create a delete req. listener for deleting a todo item
 # return the final list of todos as a response object
-
+@app.delete("/remove-todos/{item_id}")
+def delete_todo(item_id: UUID):
+    for i in todo_lst:
+        if i.id == item_id:
+            todo_lst.remove(i)
+            return  {"Success": "Item has been deleted!"}
+    
+    raise HTTPException(status_code=404, detail=f"Item ID does not exists!")
+   
 
 
 # create a delete req. listener for deleting all todo items
 # return the  final list of todos, which would be an empty list, as a response object
 
 
-
+@app.delete("/todos")
+def delete_todos():
+    todo_lst.clear()
+    return todo_lst
 
 
 
