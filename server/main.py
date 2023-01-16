@@ -79,36 +79,40 @@ def add_item(todo: Todo):
 # return the updated item as a response object
 @app.put("/update-item/{item_id}")
 def update_item(item_id:UUID, item:UpdateTodo):
-    if item_id not in todo_list:
-        return {"error":" item id do not exists."}
-    if item.name != None:
-        todo_list.name = item.name
-    if item.status != None:
-        todo_list.status = item.status
-    return todo_list[item_id]
-
+    for i, todo in enumerate(todo_list):
+        if todo.id == item_id:
+            if item.name != None:
+                todo_list[i].name = item.name
+            if item.status != None:
+                todo_list[i].status = item.status
+            return todo_list[i]
+    raise HTTPException(status_code=404, detail="Item not found.")
 
 
 
 # create a delete req. listener for deleting a todo item
 # return the final list of todos as a response object
 @app.delete("/todos/{item_id}")
-async def delete_item(item_id:UUID):
+def delete_item(item_id:UUID):
     for item in todo_list:
         if item.id == item_id:
             todo_list.remove(item)
-            return
-
-
+    return todo_list
 
 
 
 # create a delete req. listener for deleting all todo items
 # return the  final list of todos, which would be an empty list, as a response object
 @app.delete("/todos/clearlist")
-def delete_all(todo_list):
+def delete_all():
     todo_list.clear()
-    return 
+    return todo_list
+
+@app.delete("/todos/clearlist")
+def delete_all():
+    del todo_list[:]
+    return {"message": "List cleared"}
+
 
 
 
