@@ -1,7 +1,7 @@
 # make necessary imports
 from typing import Optional
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
 from uuid import UUID, uuid4
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -21,56 +21,83 @@ app.add_middleware(
 
 
 class Todo (BaseModel):
-    id: UUID
+    id: Optional[UUID] = Field(default_factory=uuid4)
     name: str
     status: Optional [str] = "pending"
+    
 
-
-todo_lst=[Todo(id=uuid4(),name='Do homework'),
-Todo(id=uuid4(),name='Shopping'),
-Todo(id=uuid4(),name='Reading',status='Done')]
-
-@app.get("/")
-def read_root():
-    return {"Good luck": "team 2 and 3"}
 
 # create a todo list and add 3 Todo items to serve as examples
-
+todo_lst=[Todo(id=uuid4(),name='Do homework'),
+Todo(id=uuid4(),name='Shopping'),
+Todo(id=uuid4(),name='Reading')]
 
 
 # create a get req. listener for the landing page "/"
 # return hello world or sth random as a response object
-
-
-
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
+    
+    
 # create a get req. listener for the endpoint "/todos"
 # return all todos as a response object
-
+@app.get("/todos")
+def read_todos():
+    return todo_lst
 
 
 # create a get req. listener for the a single todo item, customize the path using item id
 # return the particular item as a response object
-
+@app.get("/get-item")
+def get_todo_item(id: str):
+    for item in todo_lst:
+        if str(item.id) == id:
+            return item
+    raise HTTPException(status_code=404, detail="Item not found.")
 
 
 # create a post req. listener for creating a new todo item
 # return the newly created item as a response object
-
+@app.post("/todos")
+def create_todo_item(item: Todo):
+    todo = Todo(name = item.name)
+    todo_lst.append(todo)
+    return todo
 
 
 # create a put req. listener for updating an existing todo item
 # return the updated item as a response object
-
+@app.put("/todos")
+def update_todo_item(item: Todo):
+    for todo in todo_lst:
+        if todo.id == item.id:
+            if item.name != "":
+                todo.name = item.name
+            if item.status != "":
+                todo.status = item.status
+            return todo
+    raise HTTPException(status_code=404, detail="Item not found.")
 
 
 # create a delete req. listener for deleting a todo item
 # return the final list of todos as a response object
-
+@app.delete("/todos/{id}")
+def delete_item(id: str):
+    for index, item in enumerate(todo_lst):
+        if str(item.id) == id:
+            del todo_lst[index]
+            return todo_lst
+    raise HTTPException(status_code=404, detail="Item not found.")
 
 
 # create a delete req. listener for deleting all todo items
 # return the  final list of todos, which would be an empty list, as a response object
-
+@app.delete("/todos")
+def delete_all_items():
+    global todo_lst
+    todo_lst = []
+    return todo_lst
 
 
 
