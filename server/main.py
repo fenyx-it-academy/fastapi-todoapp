@@ -2,7 +2,7 @@
 from typing import Optional
 from fastapi import FastAPI
 from fastapi import HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from uuid import UUID, uuid4
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -22,7 +22,7 @@ app.add_middleware(
 
 
 class Todo (BaseModel):
-    id: UUID
+    id: Optional[UUID] = Field(default_factory=uuid4)
     name: str
     status: Optional [str] = "pending"
 
@@ -42,7 +42,7 @@ Todo(id=uuid4(),name='Reading',status='Done')
 # return hello world or sth random as a response object
 @app.get("/")
 def read_root():
-    return {"what about": "to do something?"}
+    return {"start": "API"}
 
 
 # create a get req. listener for the endpoint "/todos"
@@ -71,7 +71,7 @@ def create_todo_item(item: Todo):
     todo = Todo(name = item.name)
     todo_lst.append(todo)
     return todo
-      
+
 
 # create a put req. listener for updating an existing todo item
 # return the updated item as a response object
