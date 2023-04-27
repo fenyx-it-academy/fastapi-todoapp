@@ -1,11 +1,11 @@
-# make necessary imports
+# make necessary imports from the resources
 from typing import Optional
 from fastapi import FastAPI
 from pydantic import BaseModel
 from uuid import UUID, uuid4
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-
+from fastapi import FastAPI, HTTPException
 
 
 # create the FastAPI class
@@ -19,9 +19,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+# classes
 class Todo (BaseModel):
-    id: UUID
+    id: UUID # the optional one
     name: str
     status: Optional [str] = "pending"
 
@@ -36,26 +36,40 @@ def read_root():
 
 # create a todo list and add 3 Todo items to serve as examples
 
+Todo(id=uuid4(),name='Reading')]
 
 
 # create a get req. listener for the landing page "/"
 # return hello world or sth random as a response object
 
-
+@app.get("/")
+def read_root():
+    return {"Hello": "Everybody"}
 
 # create a get req. listener for the endpoint "/todos"
 # return all todos as a response object
 
-
+@app.get("/todos")
+def read_todos():
+    return todo_lst
 
 # create a get req. listener for the a single todo item, customize the path using item id
 # return the particular item as a response object
+@app.get("/get-item")
 
+def get_todo_item(id: str):
+    for item in todo_lst:
+        if str(item.id) == id:
+            return item
+    raise HTTPException(status_code=404, detail="Item not found, do it again.")
 
 
 # create a post req. listener for creating a new todo item
 # return the newly created item as a response object
-
+def create_todo_item(item: Todo):
+    todo = Todo(name = item.name)
+    todo_lst.append(todo)
+    return todo
 
 
 # create a put req. listener for updating an existing todo item
@@ -71,7 +85,12 @@ def read_root():
 # create a delete req. listener for deleting all todo items
 # return the  final list of todos, which would be an empty list, as a response object
 
+@app.delete("/todos")
 
+def delete_all_items():
+    global todo_lst
+    todo_lst = []
+    return todo_lst
 
 
 
