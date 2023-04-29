@@ -112,6 +112,7 @@ clearAllButton.onclick = () => {
      if (response.ok) {
        const todoList = document.querySelector(".todoList");
        todoList.innerHTML = '';
+      //  renderAllTodos();
      } else {
        // Otherwise, display an error message
        alert('An error occurred while trying to delete all the todo items');
@@ -122,7 +123,6 @@ clearAllButton.onclick = () => {
      // Display an error message if there was an issue with the request
      alert('An error occurred while trying to delete all the todo items');
    });
- renderAllTodos();
 }
 
 // onkeyup event activate add button
@@ -138,10 +138,12 @@ inputBox.onkeyup = () => {
 
 // send new item request
 addBtn.onclick = () => { //when user click on plus icon button
-  let userEnteredValue = inputBox.value; //getting input field value
-  addItem(userEnteredValue);
+  // let userEnteredValue = inputBox.value; //getting input field value
+  addItem(inputBox.value);
+  renderAllTodos();
   addBtn.classList.remove("active"); //deactivate the add button once the task added
   inputBox.value = ""; //once task added leave the input field blank
+  // renderTodo(todo)
 }
 
 
@@ -155,6 +157,7 @@ function deleteTodo(id) {
       if (response.ok) {
         const todoItem = document.getElementById(`todo-${id}`);
         todoItem.parentNode.removeChild(todoItem);
+        renderAllTodos();
       } else {
         // Otherwise, display an error message
         alert('An error occurred while trying to delete the todo item');
@@ -164,13 +167,12 @@ function deleteTodo(id) {
       // Display an error message if there was an issue with the request
       console.log(error);
     });
-    // renderAllTodos();
 }
 
 
 function addItem(val) {
   fetch(`http://127.0.0.1:8000/todos`, {
-    method: "POST",
+    method: 'POST',
     headers: {
       "Content-Type": "application/json"
     },
@@ -180,7 +182,8 @@ function addItem(val) {
   })
     .then(res => {
       if (res.ok) {
-        return res.json();
+          // return res.json();
+          renderAllTodos();
       } else {
         throw new Error(res.statusText);
       }
@@ -189,9 +192,9 @@ function addItem(val) {
       console.log(data)
     })
     .catch(error => {
+      console.log('name: '+ val)
       console.log(error)
     })
-  renderAllTodos();
 }
 
 
